@@ -11,7 +11,7 @@
 
   let startPoint = [0, 0], endPoint = [0, 0];
 
-  function calculateCells() {
+  function initCells() {
     const boardWidth = board.offsetWidth;
     const boardHeight = board.offsetHeight;
 
@@ -23,6 +23,8 @@
 
     xPadding = Math.floor(xLeft / 2);
     yPadding = Math.floor(yLeft / 2);
+
+    chooseStartEnd();
   }
 
   function chooseStartEnd() {
@@ -41,9 +43,7 @@
     return [x, y];
   }
 
-  onMount(calculateCells);
-
-  onMount(chooseStartEnd);
+  onMount(initCells);
 
 </script>
 
