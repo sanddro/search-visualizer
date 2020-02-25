@@ -98,6 +98,8 @@
     padding: 10px;
     max-height: 350px;
     overflow-y: auto;
+    z-index: 100;
+
 
     &_item {
       cursor: pointer;

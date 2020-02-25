@@ -5,7 +5,8 @@
     { text: 'DFS (Depth First Search)', id: 1 },
     { text: 'BFS (Uniform Cost Search)', id: 2 },
     { text: 'A*', id: 3 },
-    { text: 'Djikstra', id: 4 },
+    { text: 'Dijkstra\'s ', id: 4 },
+    { text: 'Greedy Best First Search', id: 5 },
   ];
   let selectedItem = items[0];
 
@@ -17,7 +18,6 @@
 
 <style>
   div {
-    margin: 20px 200px;
     display: flex;
   }
 </style>
