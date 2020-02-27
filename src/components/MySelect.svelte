@@ -44,10 +44,11 @@
   {/if}
 </div>
 <style lang="scss">
+  $bg-color: #e8ebef;
 
   .wrapper {
     width: 100%;
-    min-width: 150px;
+    min-width: 200px;
     position: relative;
 
     &:focus {
@@ -66,20 +67,25 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: #e8ebef;
+    background: $bg-color;
     cursor: pointer;
     transition: .1s background;
     padding: 10px 15px;
     border-radius: 5px;
 
     &:hover {
-      background: #dde1e7;
+      background: darken($bg-color, 5);
+    }
+
+    &:active {
+      background: darken($bg-color, 10);
     }
 
     & .pointer {
       font-weight: bold;
       font-family: sans-serif;
       transition: .2s transform ease-in-out;
+      margin-left: 10px;
     }
 
     &.opened .pointer {

@@ -1,13 +1,48 @@
 <script>
-  import AlgoSelect from './AlgoSelect.svelte';
+  import { cells } from './store/stores';
   import Board from './Board.svelte';
+  import Toolbar from './Toolbar.svelte';
+  import { findPath } from './PathFinder';
 
-  export let name;
+  let selectedAlgo;
+
+  function clear() {
+    const _cells = $cells;
+    _cells.forEach(row => row.forEach(cell => {
+      cell.state = 'empty';
+    }));
+    cells.set(_cells);
+  }
+
+  function clearPath() {
+    const _cells = $cells;
+    _cells.forEach(row => row.forEach(cell => {
+      if (cell.state === 'path')
+        cell.state = 'empty';
+    }));
+    cells.set(_cells);
+  }
+
+  function onFindPath() {
+    clearPath();
+    console.log(selectedAlgo);
+    findPath(selectedAlgo).then();
+  }
+
+  function onAlgoSelect({ detail }) {
+    clearPath();
+    selectedAlgo = detail;
+  }
+
 </script>
 
 <main>
-  <div class="container">
-    <AlgoSelect/>
+  <div class="toolbar-container">
+    <Toolbar on:findPath={onFindPath}
+             on:clearPath={clearPath}
+             on:clear={clear}
+             on:selectAlgo={onAlgoSelect}
+    />
   </div>
   <div class="board-container">
     <Board/>
@@ -22,16 +57,13 @@
     display: flex;
     flex-direction: column;
 
-    .container {
-      width: 500px;
+    .toolbar-container {
       margin: 20px auto;
     }
 
     .board-container {
       flex: 1;
       position: relative;
-      margin: 10px;
     }
-
   }
 </style>

@@ -1,17 +1,15 @@
 <script>
-
   import { onMount } from 'svelte';
   import { CssVars } from './utils/CssVars';
+  import { cells, startPoint, endPoint } from './store/stores';
+
+  const showCellNumbers = false;
 
   let board;
 
   const cellSize = 30;
 
-  let xPadding = 0, yPadding = 0, xCells = 0, yCells = 0;
-
-  let startPoint = [0, 0], endPoint = [0, 0];
-
-  let rows = [];
+  let xCells = 0, yCells = 0;
 
   let selecting = false;
   let selectMode = 'wall';
@@ -24,20 +22,17 @@
     xCells = Math.floor(boardWidth / cellSize);
     yCells = Math.floor(boardHeight / cellSize);
 
-    const xLeft = boardWidth - xCells * cellSize;
-    const yLeft = boardHeight - yCells * cellSize;
-
-    xPadding = Math.floor(xLeft / 2);
-    yPadding = Math.floor(yLeft / 2);
+    const rows = [];
 
     for (const [i, _] of new Array(yCells).entries()) {
       const arr = [];
       for (const [j, _] of new Array(xCells).entries()) {
-        arr.push({state: 'empty', id: i * xCells + j});
+        arr.push({ state: 'empty', id: i + '-' + j, r: i, c: j });
       }
       rows.push(arr);
     }
 
+    cells.set(rows);
     chooseStartEnd();
   }
 
@@ -46,15 +41,15 @@
     const y = Math.floor(yCells / 2);
     const x = Math.floor(xCells / 5);
 
-    startPoint = [x, y - 1];
-    endPoint = [4 * x, y - 1];
+    const _startPoint = [y - 1, x];
+    const _endPoint = [y - 1, 4 * x];
+    startPoint.set(_startPoint);
+    endPoint.set(_endPoint);
 
-    console.log(startPoint);
-    console.log(endPoint);
-    console.log({xCells, yCells});
-
-    rows[startPoint[1]][startPoint[0]].state = 'start';
-    rows[endPoint[1]][endPoint[0]].state = 'end';
+    const rows = $cells;
+    rows[$startPoint[0]][$startPoint[1]].isEndPoint = true;
+    rows[$endPoint[0]][$endPoint[1]].isEndPoint = true;
+    cells.set(rows);
   }
 
   function generatePoint() {
@@ -64,42 +59,72 @@
   }
 
   function onCellSelect(e, i, j) {
-    if (!selecting || !['empty', 'wall'].includes(rows[i][j].state)) return;
+    const rows = $cells;
+    if (!selecting || rows[i][j].isEndPoint) return;
     if (e.target === lastSelectedCell) return;
     lastSelectedCell = e.target;
     rows[i][j].state = selectMode;
+    cells.set(rows);
+  }
+
+  function onMouseDown(e, r, c) {
+    selecting = true;
+    onCellSelect(e, r, c);
+  }
+
+  function onMouseUp() {
+    selecting = false;
+  }
+
+  function onMouseEnter(e, r, c) {
+    onCellSelect(e, r, c);
+  }
+
+
+  function isEndPoint(r, c) {
+    return $startPoint[0] === r && $startPoint[1] === c || $endPoint[0] === r && $endPoint[1] === c;
   }
 
   onMount(initCells);
 
 </script>
 
-<div class="board" bind:this={board} on:mousedown={e => selecting = true} on:mouseup={e => selecting = false}
+<div class="board" bind:this={board}
      style={CssVars({cellSize: cellSize + 'px'})}>
   <div class="rows">
-  {#each rows as row, i}
-    <div class="row">
-      {#each rows[i] as cell, j}
-        <div class="cell"
-             class:endpoint={startPoint[0] === j && startPoint[1] === i || endPoint[0] === j && endPoint[1] === i}
-             class:wall={rows[i][j].state === 'wall'}
-             on:mousemove={e => onCellSelect(e, i, j)}
-             on:mousedown={e => onCellSelect(e, i, j)}>
-          {#if startPoint[0] === j && startPoint[1] === i}
-            <i class="far fa-dot-circle start-point"></i>
-          {/if}
-          {#if endPoint[0] === j && endPoint[1] === i}
-            <i class="fas fa-dot-circle end-point"></i>
-          {/if}
-        </div>
-      {/each}
-    </div>
-  {/each}
+    {#each $cells as row, r}
+      <div class="row">
+        {#each $cells[r] as cell, c}
+          <div class="cell"
+               class:endpoint={isEndPoint(r, c)}
+               class:wall={cell.state === 'wall'}
+               class:path={cell.state === 'path'}
+               on:mouseup={onMouseUp}
+               on:mouseenter={e => onMouseEnter(e, r, c)}
+               on:mousedown={e => onMouseDown(e, r, c) }
+          >
+            {#if $startPoint[0] === r && $startPoint[1] === c}
+              <i class="far fa-dot-circle start"></i>
+            {/if}
+            {#if $endPoint[0] === r && $endPoint[1] === c}
+              <i class="fas fa-dot-circle end"></i>
+            {/if}
+            {#if showCellNumbers}
+              <span class="cell-number">{r + '-' + c}</span>
+            {/if}
+          </div>
+        {/each}
+      </div>
+    {/each}
   </div>
 </div>
 
 <style lang="scss">
   $border-color: #cce2ff;
+  $wall-bg: #444;
+  $path-bg: #fffe6a;
+  $start-point-color: seagreen;
+  $end-point-color: crimson;
 
   .board {
     height: 100%;
@@ -134,32 +159,47 @@
       font-size: 24px;
       height: 100%;
       width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
-      &.start-point {
-        color: seagreen;
+      &.start {
+        color: $start-point-color;
       }
 
-      &.end-point {
-        color: crimson;
+      &.end {
+        color: $end-point-color;
       }
     }
 
     &:not(.endpoint):after {
       content: "";
       display: block;
-      background: transparent;
-      height: 80%;
-      width: 80%;
-      transition: 0.2s width, 0.2s height, 0s background;
-      position: absolute;
-      left: 0;
-      top: 0;
+      width: 70%;
+      height: 70%;
+      transition: .05s width, .05s height, .05s border;
     }
 
-    &.wall:not(.endpoint):after {
-      background: #555;
-      height: calc(100% + 1px);
-      width: calc(100% + 1px);
+    &.wall {
+      border: none;
+
+      &:after {
+        width: 100%;
+        height: 100%;
+        background: $wall-bg;
+      }
     }
+
+    .cell-number {
+      font-size: 9px;
+      position: absolute;
+
+    }
+
+    &.path {
+      background: $path-bg;
+      border-color: transparent;
+    }
+
   }
 </style>
