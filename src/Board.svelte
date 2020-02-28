@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, afterUpdate } from 'svelte';
   import { CssVars } from './utils/CssVars';
   import { cells, startPoint, endPoint, findInProgress } from './store/stores';
 
@@ -16,6 +16,8 @@
   let selecting = false;
   let lastSelectedCell;
   let editDisabled = false;
+
+  let draggingPoint = '';
 
   function initCells() {
     const boardWidth = board.offsetWidth;
@@ -87,7 +89,25 @@
 
   onMount(() => {
     return findInProgress.subscribe(inProgress => editDisabled = inProgress);
-  })
+  });
+
+  function onPointDrop(e, r, c) {
+    const isEnd = draggingPoint === 'end';
+
+    const rows = $cells;
+    if (isEnd)
+      rows[$endPoint[0]][$endPoint[1]].isEndPoint = false;
+    else
+      rows[$startPoint[0]][$startPoint[1]].isEndPoint = false;
+
+    rows[r][c].isEndPoint = true;
+
+    cells.set(rows);
+    if (isEnd)
+      endPoint.set([r, c]);
+    else
+      startPoint.set([r, c]);
+  }
 
 </script>
 
@@ -100,14 +120,24 @@
           <div class="cell {cell.state}" id={cell.id}
                class:endpoint={cell.isEndPoint}
                on:mouseup={onMouseUp}
+               on:mousedown={e => onMouseDown(e, r, c)}
                on:mouseenter={e => onMouseEnter(e, r, c)}
-               on:mousedown={e => onMouseDown(e, r, c) }
+               on:drop={e => onPointDrop(e, r, c)}
+               on:dragover|preventDefault
           >
             {#if $startPoint[0] === r && $startPoint[1] === c}
-              <i class="far fa-dot-circle start"></i>
+              <i class="far fa-dot-circle start grabbable"
+                 draggable={!$findInProgress}
+                 on:dragstart={e => draggingPoint = 'start'}
+                 on:mousedown|stopPropagation
+              ></i>
             {/if}
             {#if $endPoint[0] === r && $endPoint[1] === c}
-              <i class="fas fa-dot-circle end"></i>
+              <i class="fas fa-dot-circle end grabbable"
+                 draggable={!$findInProgress}
+                 on:dragstart={e => draggingPoint = 'end'}
+                 on:mousedown|stopPropagation
+              ></i>
             {/if}
             {#if showCellNumbers}
               <span class="cell-number">{r + '-' + c}</span>
@@ -169,6 +199,10 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
 
       &.start {
         color: $start-point-color;
@@ -179,7 +213,7 @@
       }
     }
 
-    &:not(.endpoint):after {
+    &:after {
       content: "";
       display: block;
       width: 70%;
@@ -204,8 +238,13 @@
     }
 
     &.path {
-      background: $path-bg;
-      border-color: transparent;
+      border: none;
+
+      &:after {
+        width: 100%;
+        height: 100%;
+        background: $path-bg;
+      }
     }
 
     &.visiting {
@@ -223,5 +262,14 @@
       border-color: #fff;
     }
 
+  }
+
+  .grabbable {
+    cursor: grab;
+  }
+
+  .grabbable:active {
+    cursor: grabbing;
+    outline: none !important;
   }
 </style>

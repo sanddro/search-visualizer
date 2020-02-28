@@ -1,6 +1,7 @@
-import dfsBfs from './dfs-bfs';
+import dfsBfsAstar from './dfsBfsAstar';
 
 export const algorithms = {
-  bfs: (...params) => dfsBfs(false, ...params),
-  dfs: (...params) => dfsBfs(true, ...params),
+  bfs: (...params) => dfsBfsAstar('bfs', ...params),
+  dfs: (...params) => dfsBfsAstar('dfs', ...params),
+  aStar: (...params) => dfsBfsAstar('aStar', ...params)
 };
