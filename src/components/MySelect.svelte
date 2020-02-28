@@ -7,6 +7,7 @@
   export let items = [];
   export let selectedItem = null;
   export let label = '';
+  export let disabled = false;
 
   export let valueKey = 'id';
   export let displayKey = 'text';
@@ -27,7 +28,7 @@
   {#if label}
     <div class="label">{label}</div>
   {/if}
-  <div class="selector" class:opened={opened}
+  <div class="selector" class:opened={opened} class:disabled={disabled}
        on:click={e => opened = !opened}>
     <span>{selectedItem ? selectedItem[displayKey] : placeHolder}</span>
     <div class="pointer"><i class="fas fa-chevron-down"></i></div>
@@ -44,6 +45,7 @@
   {/if}
 </div>
 <style lang="scss">
+  $height: 40px;
   $bg-color: #e8ebef;
 
   .wrapper {
@@ -67,11 +69,18 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    height: $height;
     background: $bg-color;
     cursor: pointer;
     transition: .1s background;
-    padding: 10px 15px;
+    padding: 0 15px;
     border-radius: 5px;
+
+    &.disabled {
+      cursor: default;
+      opacity: .5;
+      pointer-events: none;
+    }
 
     &:hover {
       background: darken($bg-color, 5);

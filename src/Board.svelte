@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { CssVars } from './utils/CssVars';
-  import { cells, startPoint, endPoint } from './store/stores';
+  import { cells, startPoint, endPoint, findInProgress } from './store/stores';
 
   export let editMode;
 
@@ -15,6 +15,7 @@
 
   let selecting = false;
   let lastSelectedCell;
+  let editDisabled = false;
 
   function initCells() {
     const boardWidth = board.offsetWidth;
@@ -60,6 +61,7 @@
   }
 
   function onCellSelect(e, i, j) {
+    if (editDisabled) return;
     const rows = $cells;
     if (!selecting || rows[i][j].isEndPoint) return;
     if (e.target === lastSelectedCell) return;
@@ -81,12 +83,11 @@
     onCellSelect(e, r, c);
   }
 
-
-  function isEndPoint(r, c) {
-    return $startPoint[0] === r && $startPoint[1] === c || $endPoint[0] === r && $endPoint[1] === c;
-  }
-
   onMount(initCells);
+
+  onMount(() => {
+    return findInProgress.subscribe(inProgress => editDisabled = inProgress);
+  })
 
 </script>
 
@@ -96,10 +97,8 @@
     {#each $cells as row, r}
       <div class="row">
         {#each $cells[r] as cell, c (cell.id)}
-          <div class="cell"
-               class:endpoint={isEndPoint(r, c)}
-               class:wall={cell.state === 'wall'}
-               class:path={cell.state === 'path'}
+          <div class="cell {cell.state}" id={cell.id}
+               class:endpoint={cell.isEndPoint}
                on:mouseup={onMouseUp}
                on:mouseenter={e => onMouseEnter(e, r, c)}
                on:mousedown={e => onMouseDown(e, r, c) }
@@ -124,8 +123,12 @@
   $border-color: #cce2ff;
   $wall-bg: #444;
   $path-bg: #fffe6a;
-  $start-point-color: seagreen;
-  $end-point-color: crimson;
+  $start-point-color: crimson;
+  $end-point-color: seagreen;
+
+  $visiting-bg: #fff591;
+  $visited-bg: #3282b8;
+  $to-visit-bg: #88e1f2;
 
   .board {
     height: 100%;
@@ -155,6 +158,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
+
+    transition: .2s background;
+    transition-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
 
     i {
       font-size: 24px;
@@ -200,6 +206,21 @@
     &.path {
       background: $path-bg;
       border-color: transparent;
+    }
+
+    &.visiting {
+      background: $visiting-bg;
+      transition: none;
+    }
+
+    &.to-visit {
+      background: $to-visit-bg;
+      border-color: #fff;
+    }
+
+    &.visited {
+      background: $visited-bg;
+      border-color: #fff;
     }
 
   }

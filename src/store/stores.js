@@ -13,3 +13,7 @@ export const cells = writable([]);
 
 export const startPoint = writable([]);
 export const endPoint = writable([]);
+
+export const findInProgress = writable(false);
+
+export const speed = writable(1);

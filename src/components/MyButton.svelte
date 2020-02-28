@@ -2,6 +2,7 @@
   import { createEventDispatcher } from 'svelte';
 
   export let title = 'Button';
+  export let disabled = false;
 
   const dispatch = createEventDispatcher();
 
@@ -11,13 +12,18 @@
 </script>
 
 
-<button on:click={onClick}><span>{title}</span></button>
+<button on:click={onClick} class:disabled={disabled}><span>{title}</span></button>
 
 <style lang="scss">
   $bg-color: #e8ebef;
+  $height: 40px;
 
   button {
-    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: $height;
+    padding: 0 15px;
     outline: none;
     background: none;
     border-radius: 5px;
@@ -25,6 +31,12 @@
     transition: .1s background;
     cursor: pointer;
     border: none;
+
+    &.disabled {
+      opacity: .5;
+      cursor: default;
+      pointer-events: none;
+    }
 
     &:hover {
       background: darken($bg-color, 5);

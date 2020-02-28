@@ -17,16 +17,15 @@
   function clearPath() {
     const _cells = $cells;
     _cells.forEach(row => row.forEach(cell => {
-      if (cell.state === 'path')
+      if (cell.state !== 'wall')
         cell.state = 'empty';
     }));
     cells.set(_cells);
   }
 
-  function onFindPath() {
+  async function onFindPath() {
     clearPath();
-    console.log(selectedAlgo);
-    findPath(selectedAlgo).then();
+    await findPath(selectedAlgo);
   }
 
   function onAlgoSelect({ detail }) {
