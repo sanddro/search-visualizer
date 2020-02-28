@@ -51,7 +51,7 @@ export default async function dfsBfsAstar(type,cells, startCell, endCell) {
     nodes.push(...neighs.map(n => new Node(n, [...elem.path, elem.cell])));
 
     if (type === 'aStar')
-      nodes.sort((a, b) => manhattanDist(a.cell, endCell) - manhattanDist(b.cell, endCell));
+      nodes.sort((a, b) => manhattanDist(a.cell, endCell) + a.path.length - manhattanDist(b.cell, endCell) - b.path.length);
 
     _cells.set(cells);
   }

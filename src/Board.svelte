@@ -14,7 +14,6 @@
   let xCells = 0, yCells = 0;
 
   let selecting = false;
-  let lastSelectedCell;
   let editDisabled = false;
 
   let draggingPoint = '';
@@ -62,27 +61,30 @@
     return [x, y];
   }
 
-  function onCellSelect(e, i, j) {
-    if (editDisabled) return;
+  function onCellSelect(e) {
+    if (editDisabled || !selecting) return;
     const rows = $cells;
-    if (!selecting || rows[i][j].isEndPoint) return;
-    if (e.target === lastSelectedCell) return;
-    lastSelectedCell = e.target;
-    rows[i][j].state = editMode;
+    const cellElem = document.querySelector('.cell:hover');
+    if (!cellElem) return;
+    const [r, c] = cellElem.id.split('-').map(a => +a);
+    const cell = rows[r][c];
+
+    if (cell.state === editMode || cell.isEndPoint) return;
+    cell.state = editMode;
     cells.set(rows);
   }
 
-  function onMouseDown(e, r, c) {
+  function onMouseDown(e) {
     selecting = true;
-    onCellSelect(e, r, c);
+    onCellSelect(e);
   }
 
   function onMouseUp() {
     selecting = false;
   }
 
-  function onMouseEnter(e, r, c) {
-    onCellSelect(e, r, c);
+  function onMouseMove(e) {
+    onCellSelect(e);
   }
 
   onMount(initCells);
@@ -109,6 +111,19 @@
       startPoint.set([r, c]);
   }
 
+  onMount(() => {
+
+    document.addEventListener('mouseup', onMouseUp);
+    document.addEventListener('mousedown', onMouseDown);
+    document.addEventListener('mousemove', onMouseMove);
+
+    return () => {
+      document.removeEventListener('mouseup', onMouseUp);
+      document.removeEventListener('mousedown', onMouseDown);
+      document.removeEventListener('mousemove', onMouseMove);
+    }
+  });
+
 </script>
 
 <div class="board" bind:this={board}
@@ -119,9 +134,6 @@
         {#each $cells[r] as cell, c (cell.id)}
           <div class="cell {cell.state}" id={cell.id}
                class:endpoint={cell.isEndPoint}
-               on:mouseup={onMouseUp}
-               on:mousedown={e => onMouseDown(e, r, c)}
-               on:mouseenter={e => onMouseEnter(e, r, c)}
                on:drop={e => onPointDrop(e, r, c)}
                on:dragover|preventDefault
           >
@@ -151,7 +163,7 @@
 
 <style lang="scss">
   $border-color: #cce2ff;
-  $wall-bg: #444;
+  $wall-bg: #124;
   $path-bg: #fffe6a;
   $start-point-color: crimson;
   $end-point-color: seagreen;
@@ -190,7 +202,6 @@
     justify-content: center;
 
     transition: .2s background;
-    transition-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
 
     i {
       font-size: 24px;
