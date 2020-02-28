@@ -16,4 +16,4 @@ export const endPoint = writable([]);
 
 export const findInProgress = writable(false);
 
-export const speed = writable(1);
+export const speed = writable(0);

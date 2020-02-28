@@ -1,6 +1,5 @@
 import { sleep } from '../utils/Utils';
-import { cells as _cells, speed } from '../store/stores';
-import { toPromise } from '../utils/Store';
+import { cells as _cells } from '../store/stores';
 
 class Node {
   constructor(cell, path) {
@@ -31,7 +30,7 @@ export default async function dfsBfsAstar(type,cells, startCell, endCell) {
     elem.cell.state = 'visiting';
     _cells.set(cells);
 
-    await sleep(await toPromise(speed));
+    await sleep();
 
     elem.cell.state = 'visited';
     let { r, c } = elem.cell;

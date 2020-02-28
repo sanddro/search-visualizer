@@ -61,7 +61,7 @@
     <MyButton title="Clear path" on:click={() => dispatch('clearPath')} {disabled} />
   </div>
   <div>
-    <MySlider title="Choose speed" on:change={e => speedChanged(e.detail)} />
+    <MySlider title="Choose speed" minValue={0} maxValue={100} on:change={e => speedChanged(e.detail)} />
   </div>
 </div>
 

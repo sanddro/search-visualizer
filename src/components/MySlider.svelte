@@ -6,10 +6,10 @@
   export let disabled = false;
   export let minValue = 0;
   export let maxValue = 100;
-  export let value = 100;
+  export let value = maxValue;
 
   function onChange(e) {
-    dispatch('change', 100 - value);
+    dispatch('change', maxValue - value);
   }
 
 </script>
