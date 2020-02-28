@@ -3,6 +3,8 @@
   import { CssVars } from './utils/CssVars';
   import { cells, startPoint, endPoint } from './store/stores';
 
+  export let editMode;
+
   const showCellNumbers = false;
 
   let board;
@@ -12,7 +14,6 @@
   let xCells = 0, yCells = 0;
 
   let selecting = false;
-  let selectMode = 'wall';
   let lastSelectedCell;
 
   function initCells() {
@@ -63,7 +64,7 @@
     if (!selecting || rows[i][j].isEndPoint) return;
     if (e.target === lastSelectedCell) return;
     lastSelectedCell = e.target;
-    rows[i][j].state = selectMode;
+    rows[i][j].state = editMode;
     cells.set(rows);
   }
 
@@ -94,7 +95,7 @@
   <div class="rows">
     {#each $cells as row, r}
       <div class="row">
-        {#each $cells[r] as cell, c}
+        {#each $cells[r] as cell, c (cell.id)}
           <div class="cell"
                class:endpoint={isEndPoint(r, c)}
                class:wall={cell.state === 'wall'}

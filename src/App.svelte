@@ -4,7 +4,7 @@
   import Toolbar from './Toolbar.svelte';
   import { findPath } from './PathFinder';
 
-  let selectedAlgo;
+  let selectedAlgo, editMode;
 
   function clear() {
     const _cells = $cells;
@@ -34,6 +34,10 @@
     selectedAlgo = detail;
   }
 
+  function onEditModeSelect({detail}) {
+    editMode = detail.id;
+  }
+
 </script>
 
 <main>
@@ -42,10 +46,11 @@
              on:clearPath={clearPath}
              on:clear={clear}
              on:selectAlgo={onAlgoSelect}
+             on:selectEditMode={onEditModeSelect}
     />
   </div>
   <div class="board-container">
-    <Board/>
+    <Board {editMode}/>
   </div>
 </main>
 

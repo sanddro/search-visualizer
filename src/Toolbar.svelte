@@ -6,13 +6,17 @@
 
   const dispatch = createEventDispatcher();
 
-  let selectedAlgo;
+  const editModes = [{text: 'Wall', id: 'wall'}, {text: 'Erase', id: 'empty'}];
+
+  let selectedAlgo, editMode = editModes[0];
 
   onMount(() => {
     const unsubscribe = algorithms.subscribe(algos => {
       selectedAlgo = selectedAlgo || algos[0];
       dispatch('selectAlgo', selectedAlgo);
     });
+
+    dispatch('selectEditMode', editMode);
 
     return unsubscribe;
   });
@@ -21,8 +25,18 @@
 
 <div class="toolbar">
   <div style="width: 300px">
-    <MySelect bind:selectedItem={selectedAlgo} on:select={elem => dispatch('selectAlgo', elem.detail)}
-              items={$algorithms} label={"Choose search algorithm:"}/>
+    <MySelect bind:selectedItem={selectedAlgo}
+              label={"Choose search algorithm:"}
+              on:select={elem => dispatch('selectAlgo', elem.detail)}
+              items={$algorithms}
+     />
+  </div>
+  <div>
+    <MySelect bind:selectedItem={editMode}
+              label={"Choose edit mode:"}
+              on:select={elem => dispatch('selectEditMode', elem.detail)}
+              items={editModes}
+    />
   </div>
   <div>
     <MyButton title="Clear" on:click={() => dispatch('clear')}/>
