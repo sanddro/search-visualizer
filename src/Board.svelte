@@ -1,97 +1,88 @@
 <script>
-  import { onMount, afterUpdate } from 'svelte';
+  import { onMount, onDestroy, afterUpdate } from 'svelte';
   import { CssVars } from './utils/CssVars';
   import { cells, startPoint, endPoint, findInProgress } from './store/stores';
+  import { getPixelsBetweenPoints, isNeighbor } from './utils/Utils';
 
   export let editMode;
+  export let cellSize;
 
   const showCellNumbers = false;
 
   let board;
 
-  const cellSize = 30;
-
   let xCells = 0, yCells = 0;
 
   let selecting = false;
-  let editDisabled = false;
+  let prevMousePos = null;
+  let prevCellPos = null;
+  let cellsShouldUpdate = 0;
 
   let draggingPoint = '';
-
-  function initCells() {
-    const boardWidth = board.offsetWidth;
-    const boardHeight = board.offsetHeight;
-
-    xCells = Math.floor(boardWidth / cellSize);
-    yCells = Math.floor(boardHeight / cellSize);
-
-    const rows = [];
-
-    for (const [i, _] of new Array(yCells).entries()) {
-      const arr = [];
-      for (const [j, _] of new Array(xCells).entries()) {
-        arr.push({ state: 'empty', id: i + '-' + j, r: i, c: j });
-      }
-      rows.push(arr);
-    }
-
-    cells.set(rows);
-    chooseStartEnd();
-  }
-
-  function chooseStartEnd() {
-
-    const y = Math.floor(yCells / 2);
-    const x = Math.floor(xCells / 5);
-
-    const _startPoint = [y - 1, x];
-    const _endPoint = [y - 1, 4 * x];
-    startPoint.set(_startPoint);
-    endPoint.set(_endPoint);
-
-    const rows = $cells;
-    rows[$startPoint[0]][$startPoint[1]].isEndPoint = true;
-    rows[$endPoint[0]][$endPoint[1]].isEndPoint = true;
-    cells.set(rows);
-  }
 
   function generatePoint() {
     const x = Math.floor(Math.random() * (xCells + 1));
     const y = Math.floor(Math.random() * (yCells + 1));
     return [x, y];
+
   }
 
-  function onCellSelect(e) {
-    if (editDisabled || !selecting) return;
-    const rows = $cells;
-    const cellElem = document.querySelector('.cell:hover');
-    if (!cellElem) return;
-    const [r, c] = cellElem.id.split('-').map(a => +a);
-    const cell = rows[r][c];
+  function onMouseMove({ clientX, clientY }) {
+    if (!selecting || $findInProgress) return;
+
+    const cellCoors = markCellOnPoint([clientX, clientY]);
+
+    if (!cellCoors) return;
+
+    if (prevCellPos && !isNeighbor(cellCoors, prevCellPos)) {
+      const pixels = getPixelsBetweenPoints(prevCellPos, cellCoors);
+      for (const p of pixels) markCell(p[0], p[1]);
+    }
+
+    prevCellPos = cellCoors;
+    prevMousePos = [clientX, clientY];
+  }
+
+  function markCellOnPoint(p) {
+    if ($findInProgress || !selecting) return;
+
+    const cell = document.elementFromPoint(p[0], p[1]);
+
+    if (!cell || !cell.classList.contains('cell')) return;
+    const [r, c] = cell.id.split('-').map(el => +el);
+    markCell(r, c);
+    return [r, c];
+  }
+
+  function markCell(r, c) {
+    const _cells = $cells;
+    const cell = _cells[r][c];
 
     if (cell.state === editMode || cell.isEndPoint) return;
     cell.state = editMode;
-    cells.set(rows);
+    cellsShouldUpdate++;
   }
 
-  function onMouseDown(e) {
+  afterUpdate(() => {
+    if (cellsShouldUpdate) {
+      cellsShouldUpdate = 0;
+      requestAnimationFrame(() => {
+        cells.update(c => c);
+      });
+    }
+  });
+
+
+  function onMouseDown({ clientX, clientY }) {
     selecting = true;
-    onCellSelect(e);
+    markCellOnPoint([clientX, clientY]);
   }
 
   function onMouseUp() {
     selecting = false;
+    prevMousePos = null;
+    prevCellPos = null;
   }
-
-  function onMouseMove(e) {
-    onCellSelect(e);
-  }
-
-  onMount(initCells);
-
-  onMount(() => {
-    return findInProgress.subscribe(inProgress => editDisabled = inProgress);
-  });
 
   function onPointDrop(e, r, c) {
     const isEnd = draggingPoint === 'end';
@@ -121,13 +112,12 @@
       document.removeEventListener('mouseup', onMouseUp);
       document.removeEventListener('mousedown', onMouseDown);
       document.removeEventListener('mousemove', onMouseMove);
-    }
+    };
   });
 
 </script>
 
-<div class="board" bind:this={board}
-     style={CssVars({cellSize: cellSize + 'px'})}>
+<div class="board" style={CssVars({cellSize: cellSize + 'px'})}>
   <div class="rows">
     {#each $cells as row, r}
       <div class="row">
@@ -160,6 +150,8 @@
     {/each}
   </div>
 </div>
+
+<div style="display: none;">{cellsShouldUpdate}</div>
 
 <style lang="scss">
   $border-color: #cce2ff;
@@ -204,7 +196,6 @@
     transition: .2s background;
 
     i {
-      font-size: 24px;
       height: 100%;
       width: 100%;
       display: flex;
@@ -214,6 +205,8 @@
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
+
+      font-size: calc(var(--cellSize) * 0.8);
 
       &.start {
         color: $start-point-color;
