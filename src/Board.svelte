@@ -30,31 +30,32 @@
   function onMouseMove({ clientX, clientY }) {
     if (!selecting || $findInProgress) return;
 
-    const cellCoors = markCellOnPoint([clientX, clientY]);
+    const cellCoors = getCellOnPoint([clientX, clientY]);
 
     if (!cellCoors) return;
 
+    markCell(cellCoors);
+
     if (prevCellPos && !isNeighbor(cellCoors, prevCellPos)) {
       const pixels = getPixelsBetweenPoints(prevCellPos, cellCoors);
-      for (const p of pixels) markCell(p[0], p[1]);
+      for (const p of pixels) markCell(p);
     }
 
     prevCellPos = cellCoors;
     prevMousePos = [clientX, clientY];
   }
 
-  function markCellOnPoint(p) {
-    if ($findInProgress || !selecting) return;
+  function getCellOnPoint(p) {
+    if (!selecting || $findInProgress) return null;
 
     const cell = document.elementFromPoint(p[0], p[1]);
 
-    if (!cell || !cell.classList.contains('cell')) return;
+    if (!cell || !cell.classList.contains('cell')) return null;
     const [r, c] = cell.id.split('-').map(el => +el);
-    markCell(r, c);
     return [r, c];
   }
 
-  function markCell(r, c) {
+  function markCell([r, c]) {
     const _cells = $cells;
     const cell = _cells[r][c];
 
@@ -75,7 +76,13 @@
 
   function onMouseDown({ clientX, clientY }) {
     selecting = true;
-    markCellOnPoint([clientX, clientY]);
+    const cellCoors = getCellOnPoint([clientX, clientY]);
+
+    if (!cellCoors) return;
+
+    prevCellPos = cellCoors;
+
+    markCell(cellCoors);
   }
 
   function onMouseUp() {

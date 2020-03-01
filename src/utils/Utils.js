@@ -28,23 +28,21 @@ export function getPixelsBetweenPoints([x0, y0], [x1, y1]) {
   let sy = y0 < y1 ? 1 : -1;
   let err = dx - dy;
 
-  while (true) {
-    pixels.push([x0, y0]);
-
-    if (x0 === x1 && y0 === y1) break;
-
+  while (x0 !== x1 || y0 !== y1) {
     let e2 = 2 * err;
     if (e2 > -dy) {
       err -= dy;
       x0 += sx;
+      pixels.push([x0, y0]);
     }
     if (e2 < dx) {
       err += dx;
       y0 += sy;
+      pixels.push([x0, y0]);
     }
   }
-
-  return pixels.slice(1, pixels.length - 1);
+  
+  return pixels.slice(0, pixels.length - 1);
 }
 
 export function isNeighbor(p1, p2) {
