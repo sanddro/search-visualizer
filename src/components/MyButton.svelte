@@ -52,6 +52,10 @@
         &:hover {
           background: darken($color, 5);
         }
+
+        &:active {
+          background: darken($color, 10);
+        }
       }
     }
 
