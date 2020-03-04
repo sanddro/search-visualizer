@@ -40,29 +40,30 @@
               label={"Choose search algorithm:"}
               on:select={elem => dispatch('selectAlgo', elem.detail)}
               items={$algorithms}
-              {disabled}
-     />
+      {disabled}
+    />
   </div>
   <div>
     <MySelect bind:selectedItem={editMode}
               label={"Choose edit mode:"}
               on:select={elem => dispatch('selectEditMode', elem.detail)}
               items={editModes}
-              {disabled}
+      {disabled}
     />
   </div>
   <div>
-    <MyButton title="Clear" on:click={() => dispatch('clear')} {disabled} />
+    <MySlider title="Choose speed" minValue={0} maxValue={100} on:change={e => speedChanged(e.detail)}/>
   </div>
   <div>
-    <MyButton title="Find path" on:click={() => dispatch('findPath')} {disabled} />
+    <MyButton title="Find path" color="green" icon="fas fa-search" on:click={() => dispatch('findPath')} {disabled} />
   </div>
   <div>
-    <MyButton title="Clear path" on:click={() => dispatch('clearPath')} {disabled} />
+    <MyButton title="Clear" color="red" icon="far fa-trash-alt" on:click={() => dispatch('clear')} {disabled} />
   </div>
   <div>
-    <MySlider title="Choose speed" minValue={0} maxValue={100} on:change={e => speedChanged(e.detail)} />
+    <MyButton title="Clear path" color="blue" icon="fas fa-road" on:click={() => dispatch('clearPath')} {disabled} />
   </div>
+
 </div>
 
 <style lang="scss">
@@ -70,9 +71,14 @@
     display: flex;
     align-items: flex-end;
     justify-content: center;
+    flex-wrap: wrap;
 
-    > *:not(:first-child) {
-      margin-left: 20px;
+    > div {
+      margin: 10px 0;
+
+      &:not(:first-child) {
+        margin-left: 20px;
+      }
     }
   }
 </style>

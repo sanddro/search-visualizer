@@ -164,8 +164,8 @@
   $border-color: #cce2ff;
   $wall-bg: #124;
   $path-bg: #fffe6a;
-  $start-point-color: crimson;
-  $end-point-color: seagreen;
+  $start-point-color: #db2d42;
+  $end-point-color: #2c9472;
 
   $visiting-bg: #fff591;
   $visited-bg: #3282b8;

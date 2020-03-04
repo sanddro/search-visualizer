@@ -95,14 +95,12 @@
 </script>
 
 <main>
-  <div class="toolbar-container">
-    <Toolbar on:findPath={onFindPath}
-             on:clearPath={clearPath}
-             on:clear={clear}
-             on:selectAlgo={onAlgoSelect}
-             on:selectEditMode={onEditModeSelect}
-    />
-  </div>
+  <Toolbar on:findPath={onFindPath}
+           on:clearPath={clearPath}
+           on:clear={clear}
+           on:selectAlgo={onAlgoSelect}
+           on:selectEditMode={onEditModeSelect}
+  />
   <div class="board-container">
     <div class="board-wrapper" bind:this={board}>
       <Board {editMode} {cellSize}/>
@@ -117,10 +115,6 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-
-    .toolbar-container {
-      margin: 20px auto;
-    }
 
     .board-container {
       flex: 1;

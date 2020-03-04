@@ -12,7 +12,7 @@ function manhattanDist(c1, c2) {
   return Math.abs(c2.r - c1.r) + Math.abs(c2.c - c1.c);
 }
 
-export default async function dfsBfsAstar(type,cells, startCell, endCell) {
+export default async function searchAlg(type, cells, startCell, endCell) {
   let cellsWidth = cells[0].length;
   let cellsHeight = cells.length;
 
@@ -35,7 +35,7 @@ export default async function dfsBfsAstar(type,cells, startCell, endCell) {
     elem.cell.state = 'visited';
     let { r, c } = elem.cell;
 
-    let neighs = [{r, c: c - 1}, {r: r - 1, c}, {r, c: c + 1}, {r: r + 1, c}];
+    let neighs = [{ r, c: c - 1 }, { r: r - 1, c }, { r, c: c + 1 }, { r: r + 1, c }];
 
     // Drop out of bounds
     neighs = neighs.filter(n => n.r >= 0 && n.c >= 0 && n.r < cellsHeight && n.c < cellsWidth);
@@ -51,6 +51,8 @@ export default async function dfsBfsAstar(type,cells, startCell, endCell) {
 
     if (type === 'aStar')
       nodes.sort((a, b) => manhattanDist(a.cell, endCell) + a.path.length - manhattanDist(b.cell, endCell) - b.path.length);
+    if (type === 'bestFirst')
+      nodes.sort((a, b) => manhattanDist(a.cell, endCell) - manhattanDist(b.cell, endCell));
 
     _cells.set(cells);
   }
