@@ -19,7 +19,11 @@ export default async function searchAlg(type, cells, startCell, endCell) {
   // Queue, stack or priority queue depending on type
   let nodes = [new Node(startCell, [])];
 
-  while (nodes.length && await findInProgress.toPromise()) {
+  let inProgress = true;
+
+  findInProgress.subscribe(res => inProgress = res);
+
+  while (nodes.length && inProgress) {
     let elem = type === 'dfs' ? nodes.pop() : nodes.shift();
     if (elem.cell.id === endCell.id) {
       return [...elem.path, endCell];
