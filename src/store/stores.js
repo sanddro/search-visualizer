@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store';
+import { withPromise } from '../utils/Store';
 
 
 export const algorithms = writable([
@@ -8,11 +9,11 @@ export const algorithms = writable([
   { text: 'Greedy Best First Search', id: 4, name: 'bestFirst' },
 ]);
 
-export const cells = writable([]);
+export const cells = withPromise(writable([]));
 
-export const startPoint = writable([]);
-export const endPoint = writable([]);
+export const startPoint = withPromise(writable([]));
+export const endPoint = withPromise(writable([]));
 
-export const findInProgress = writable(false);
+export const findInProgress = withPromise(writable(false));
 
-export const speed = writable(0);
+export const speed = withPromise(writable(0));

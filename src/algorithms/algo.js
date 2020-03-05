@@ -1,5 +1,5 @@
 import { sleep } from '../utils/Utils';
-import { cells as _cells } from '../store/stores';
+import { cells as _cells, findInProgress } from '../store/stores';
 
 class Node {
   constructor(cell, path) {
@@ -19,7 +19,7 @@ export default async function searchAlg(type, cells, startCell, endCell) {
   // Queue, stack or priority queue depending on type
   let nodes = [new Node(startCell, [])];
 
-  while (nodes.length) {
+  while (nodes.length && await findInProgress.toPromise()) {
     let elem = type === 'dfs' ? nodes.pop() : nodes.shift();
     if (elem.cell.id === endCell.id) {
       return [...elem.path, endCell];

@@ -1,9 +1,8 @@
-import { toPromise } from './Store';
 import { speed } from '../store/stores';
 
 export async function sleep(ms) {
   if (ms === undefined)
-    ms = await toPromise(speed);
+    ms = await speed.toPromise();
   return await new Promise(resolve => setTimeout(resolve, ms));
 }
 
@@ -41,7 +40,7 @@ export function getPixelsBetweenPoints([x0, y0], [x1, y1]) {
       pixels.push([x0, y0]);
     }
   }
-  
+
   return pixels.slice(0, pixels.length - 1);
 }
 

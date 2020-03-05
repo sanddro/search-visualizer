@@ -11,8 +11,6 @@
 
   let selectedAlgo, editMode = editModes[0];
 
-  let disabled = false;
-
   onMount(() => {
     const unsubscribe = algorithms.subscribe(algos => {
       selectedAlgo = selectedAlgo || algos[0];
@@ -22,10 +20,6 @@
     dispatch('selectEditMode', editMode);
 
     return unsubscribe;
-  });
-
-  onMount(() => {
-    return findInProgress.subscribe(inProgress => disabled = inProgress);
   });
 
   function speedChanged(value) {
@@ -38,30 +32,37 @@
   <div style="width: 300px">
     <MySelect bind:selectedItem={selectedAlgo}
               label={"Choose search algorithm:"}
+              disabled={$findInProgress}
               on:select={elem => dispatch('selectAlgo', elem.detail)}
               items={$algorithms}
-      {disabled}
     />
   </div>
   <div>
     <MySelect bind:selectedItem={editMode}
               label={"Choose edit mode:"}
+              disabled={$findInProgress}
               on:select={elem => dispatch('selectEditMode', elem.detail)}
               items={editModes}
-      {disabled}
     />
   </div>
   <div>
     <MySlider title="Choose speed" minValue={0} maxValue={100} on:change={e => speedChanged(e.detail)}/>
   </div>
   <div>
-    <MyButton title="Find path" color="green" icon="fas fa-search" on:click={() => dispatch('findPath')} {disabled} />
+    {#if !$findInProgress}
+      <MyButton title="Find path" color="green" icon="fas fa-search" on:click={() => dispatch('findPath')}
+                disabled={$findInProgress} />
+    {:else}
+      <MyButton title="Stop" color="red" icon="far fa-stop-circle" on:click={() => dispatch('stop')}/>
+    {/if}
   </div>
   <div>
-    <MyButton title="Clear" color="red" icon="far fa-trash-alt" on:click={() => dispatch('clear')} {disabled} />
+    <MyButton title="Clear" color="gray" icon="far fa-trash-alt" on:click={() => dispatch('clear')}
+              disabled={$findInProgress} />
   </div>
   <div>
-    <MyButton title="Clear path" color="blue" icon="fas fa-road" on:click={() => dispatch('clearPath')} {disabled} />
+    <MyButton title="Clear path" color="blue" icon="fas fa-road" on:click={() => dispatch('clearPath')}
+              disabled={$findInProgress} />
   </div>
 
 </div>

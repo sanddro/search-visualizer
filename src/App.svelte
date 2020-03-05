@@ -1,5 +1,5 @@
 <script>
-  import { cells, startPoint, endPoint } from './store/stores';
+  import { cells, startPoint, endPoint, findInProgress } from './store/stores';
   import Board from './Board.svelte';
   import Toolbar from './Toolbar.svelte';
   import { findPath } from './PathFinder';
@@ -38,6 +38,11 @@
 
   function onEditModeSelect({ detail }) {
     editMode = detail.id;
+  }
+
+  function onStop() {
+    findInProgress.set(false);
+    setTimeout(clearPath, 50);
   }
 
 
@@ -100,6 +105,7 @@
            on:clear={clear}
            on:selectAlgo={onAlgoSelect}
            on:selectEditMode={onEditModeSelect}
+           on:stop={onStop}
   />
   <div class="board-container">
     <div class="board-wrapper" bind:this={board}>
