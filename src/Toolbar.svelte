@@ -53,7 +53,7 @@
       <MyButton title="Find path" color="green" icon="fas fa-search" on:click={() => dispatch('findPath')}
                 disabled={$findInProgress} />
     {:else}
-      <MyButton title="Stop" color="red" icon="far fa-stop-circle" on:click={() => dispatch('stop')}/>
+      <MyButton title="Stop" color="red" icon="fas fa-stop" on:click={() => dispatch('stop')}/>
     {/if}
   </div>
   <div>
@@ -61,7 +61,7 @@
               disabled={$findInProgress} />
   </div>
   <div>
-    <MyButton title="Clear path" color="blue" icon="fas fa-road" on:click={() => dispatch('clearPath')}
+    <MyButton title="Clear path" color="blue" icon="fas fa-wave-square" on:click={() => dispatch('clearPath')}
               disabled={$findInProgress} />
   </div>
 
